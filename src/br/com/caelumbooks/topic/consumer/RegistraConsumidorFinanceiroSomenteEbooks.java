@@ -1,4 +1,4 @@
-package br.com.caelumbooks.topic.sender.consumer;
+package br.com.caelumbooks.topic.consumer;
 
 import java.util.Scanner;
 
@@ -9,9 +9,7 @@ import javax.jms.Topic;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import br.com.caelumbooks.topic.consumer.TratadorDeMensagensDoTopico;
-
-public class RegistraConsumidorDoTopicoFinanceiro {
+public class RegistraConsumidorFinanceiroSomenteEbooks {
 
 	public static void main(String[] args) throws NamingException {
 		InitialContext ic = new InitialContext();
@@ -20,19 +18,20 @@ public class RegistraConsumidorDoTopicoFinanceiro {
 		Topic topico = (Topic) ic.lookup("jms/TOPICO.LIVRARIA");
 		
 		try (JMSContext context = factory.createContext("jms", "jms2")) {
-			context.setClientID("Financeiro");
-			JMSConsumer consumer = context.createDurableConsumer(topico, "AssinaturaNotas");
-			consumer.setMessageListener(new TratadorDeMensagensDoTopico());
+			context.setClientID("FinanceiroEbook");
+			JMSConsumer consumer = context.createDurableConsumer(topico, "AssinaturaNotasEbook", "formato='ebook'", false);
+			consumer.setMessageListener(new TratadorDeMensagemFinanceiroParaEbook());
 			
 			context.start();
 			
 			Scanner teclado = new Scanner(System.in);
-			System.out.println("Tratador esperando as mensagens do Topico...");
+			System.out.println("Tratador de mensagens Financeiro para Ebooks esperando msgs...");
+			
 			teclado.nextLine();
 			
+			System.out.println("Tratador finalizado!");
 			teclado.close();
 			context.stop();
-			System.out.println("Tratador finalizado!");
 		}
 	}
 	
