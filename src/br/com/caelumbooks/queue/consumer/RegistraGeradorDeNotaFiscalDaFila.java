@@ -9,26 +9,27 @@ import javax.jms.Queue;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-public class RegistraConsumidorDaFila {
+public class RegistraGeradorDeNotaFiscalDaFila {
 
 	public static void main(String[] args) throws NamingException {
 		InitialContext ic = new InitialContext();
 		
 		ConnectionFactory factory = (ConnectionFactory) ic.lookup("jms/RemoteConnectionFactory");
-		Queue queue = (Queue) ic.lookup("jms/FILA.GERADOR");
+		Queue fila = (Queue) ic.lookup("jms/FILA.NOTA-FISCAL");
 		
 		try (JMSContext context = factory.createContext("jms", "jms2")) {
-			JMSConsumer consumer = context.createConsumer(queue); //por padrao um consumidor de uma fila é durável
-			consumer.setMessageListener(new TratadorDeMensagemDaFila());
+			JMSConsumer consumer = context.createConsumer(fila);
+			consumer.setMessageListener(new TratadorDeMensagemDaFilaParaGerarNotaFiscal());
 			
 			context.start();
+			System.out.println("Iniciado Tratador de mensagens para gerar nota fiscal por fila...");
 			
 			Scanner teclado = new Scanner(System.in);
-			System.out.println("Tratador esperando as mensagens da fila...");
 			teclado.nextLine();
-			teclado.close();
+			
 			context.stop();
-			System.out.println("Tratador de msgs de fila finalizado!");
+			teclado.close();
+			System.out.println("Tratador finalizado!");
 		}
 	}
 	
